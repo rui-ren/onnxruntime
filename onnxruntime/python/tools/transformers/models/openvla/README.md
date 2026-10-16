@@ -20,7 +20,8 @@ the component diagnostic below does not independently reproduce these counts.
 
 | Control | Prefill failures against unchanged original CPU fixture |
 |---|---:|
-| Unchanged ORT CUDA package | 8 |
+| Previously tested prebuilt ORT 1.31.0 CUDA runtime | 8 |
+| Source-built ORT 1.32.0, CUDA 12.8 (details below) | 6 |
 | Unchanged original-class Torch CUDA FP32, TF32 disabled | 7 |
 | Vision MATH attention instead of efficient attention | 4 |
 | Source Q-prescaling plus primitive attention | 3 |
@@ -92,9 +93,9 @@ The default floating-point diagnostic bounds are `atol=rtol=1e-4`; integer and b
 outputs compare exactly. These CLI options do not
 change any external frozen qualification policy.
 
-The complete eight-logit failure still requires the pinned three-component
+Reproducing the full-model discrepancies requires the pinned three-component
 package, unchanged independent fixture and original own-path prefill sequence;
-the component command alone does not reproduce it. The unresolved work is a
+the component command alone does not reproduce these counts. The unresolved work is a
 small matched-input kernel reproducer, not an unverified normalization patch.
 Model weights, input tensors and native profiles are not bundled here.
 The sanitized [component observation](h100_observation.json) records an actual
@@ -106,6 +107,36 @@ do not establish a normalization defect.
 Generated local reports contain file paths and may contain device identifiers.
 Review and redact them before publishing. The committed observation excludes
 local paths, machine identifiers, weights and input tensors.
+
+## Source-built development baseline
+
+The branch was built at `54be849eb644691d089188b67c0b43e7494d07c8` and its
+local GPU wheel was used for the same full-model comparison, not just the
+vision-component probe. The [sanitized source-build observation](source_build_observation.json)
+records the wheel/native-library hashes, build settings and numerical results.
+Later documentation commits are not the compiled source revision.
+
+The build used an isolated CUDA 12.8.93 SDK, CUDA runtime 12.8.90,
+cuBLAS 12.8.4.1, cuDNN 9.5.1.17, GCC 11.4.0 and Python 3.12.15, targeting
+H100 `90a-real`. CUDA 12.6 did not compile this revision's cuDNN frontend,
+which references CUDA 12.8 runtime APIs. Unused FP4-QMoE was disabled;
+the FP32 model graphs and numerical policy were unchanged. Explicit
+`--cuda_version 12.8` supplied wheel metadata because the isolated SDK
+did not contain `version.json`.
+
+The full comparison still **fails qualification**: six prefill values exceed
+the unchanged combined `atol=rtol=1e-4` bound, with maximum absolute error
+`0.00018596649169921875`. The other 132 of 133 boundaries pass, including all
+128 cache comparisons. Seven exact action tokens, actions and a fresh-request
+repeat match the original CPU fixture. Placement inspection finds no
+floating-point CPU fallback; the CPU nodes perform integer shape work.
+The 13 diagnostic unit tests also pass against this wheel.
+
+This is not a controlled kernel-fix experiment: the native revision, ORT
+version, CUDA toolchain/libraries and build configuration differ from the
+previous prebuilt runtime. Fewer failing values do not establish a fix or its
+cause. The original CPU reference was not replaced, no tolerance was relaxed,
+and neither all-node GPU qualification nor production admission was granted.
 
 ## Tests
 
