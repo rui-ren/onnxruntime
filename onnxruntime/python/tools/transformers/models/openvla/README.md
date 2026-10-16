@@ -138,6 +138,34 @@ previous prebuilt runtime. Fewer failing values do not establish a fix or its
 cause. The original CPU reference was not replaced, no tolerance was relaxed,
 and neither all-node GPU qualification nor production admission was granted.
 
+### What the failing gate means
+
+This is a development acceptance rule, not an ORT execution error or a
+robot-task accuracy metric. A logit is a raw token score; the gate compares
+every initial image/instruction ("prefill") score to the original CPU fixture.
+One score outside the combined bound fails the gate even when actions match.
+For example, reference `-0.0393329859` versus candidate `-0.0391947106` differs
+by `0.0001382753`, above its allowed `0.0001039333`.
+
+A follow-up captured existing outputs without adding graph outputs and
+reproduced all 133 comparison metrics. All six failures are at image-token
+positions. The highest-scoring token is unchanged at all 276 positions;
+the last position used to select the first action has zero failing scores.
+Non-image embeddings are bitwise identical to the CPU fixture, so this
+observation does not implicate the text-token embedding lookup.
+
+With the same decoder, diagnostic interpolation from CPU image features
+toward the candidate features produces 0, 0, 0, 1 and 6 failing scores at
+0%, 25%, 50%, 75% and 100% of the feature difference. Endpoint embeddings
+and logits match the previous captures bitwise. This supports upstream
+feature-error sensitivity, not a proven faulty kernel. Interpolated/oracle
+features are counterfactual controls, never an inference fix.
+
+Vision features are also bitwise identical between the prebuilt and
+source-built ORT runs: the eight-to-six count change is not a vision-path
+fix. These are single-request observations, not proof that small errors
+are harmless across other images or robot tasks.
+
 ## Tests
 
 Using an environment with NumPy, ONNX and ORT installed, run outside the checkout

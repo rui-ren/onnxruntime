@@ -84,6 +84,52 @@
     ],
     "worker_exit_code": 2
   },
+  "follow_up_investigation": {
+    "source_fixture_sha256": "bbe709b12024af31dd86f1852ce2af50dc7ddcb8ff4b2ecaffacbcdb508e809a",
+    "graph_outputs_added": false,
+    "all_133_comparison_metrics_match_uncaptured_baseline": true,
+    "failed_coordinates": [
+      [0, 14, 31913],
+      [0, 49, 31815],
+      [0, 56, 31848],
+      [0, 119, 31799],
+      [0, 122, 31809],
+      [0, 122, 31817]
+    ],
+    "failed_positions_are_all_image_positions": true,
+    "prefill_positions": 276,
+    "prefill_argmax_disagreements_vs_original_cpu": 0,
+    "first_action_prediction_prefill_position": 275,
+    "first_action_prediction_position_failing_elements": 0,
+    "first_action_prediction_position_max_absolute_error": 0.00006008148193359375,
+    "first_action_prediction_cpu_top_two_logit_margin": 0.7140464782714844,
+    "non_image_embeddings_bitwise_identical_to_original_cpu": true,
+    "vision_features_bitwise_identical_across_ort_builds": true,
+    "source_built_vs_prebuilt_prefill_failing_elements": 0,
+    "source_built_vs_prebuilt_prefill_max_absolute_error": 0.0000514984130859375,
+    "ort_vs_original_torch_cuda_prefill_failing_elements": 3,
+    "ort_vs_original_torch_cuda_prefill_argmax_disagreements": 0,
+    "worst_gate_violation": {
+      "coordinate": [0, 49, 31815],
+      "original_cpu": -0.03933298587799072,
+      "ort_cuda": -0.03919471055269241,
+      "absolute_error": 0.00013827532529830933,
+      "allowed_error": 0.00010393329858779908,
+      "error_over_allowed": 1.3304237157593855
+    },
+    "feature_delta_counterfactual": {
+      "diagnostic_only": true,
+      "synthetic_features_not_inference_fix": true,
+      "fp32_inference_only": true,
+      "graph_changes": false,
+      "source_reference_and_thresholds_unchanged": true,
+      "endpoint_embeddings_and_logits_bitwise_match_prior_captures": true,
+      "candidate_feature_delta_fractions": [0.0, 0.25, 0.5, 0.75, 1.0],
+      "prefill_failing_elements": [0, 0, 0, 1, 6],
+      "prefill_argmax_disagreements": [0, 0, 0, 0, 0],
+      "interpretation": "Holding the decoder fixed, small upstream image-feature differences determine whether this sample crosses the strict CPU-reference bound. This does not identify a faulty kernel or authorize oracle features, tolerance changes or qualification."
+    }
+  },
   "diagnostic_unit_tests": {
     "runner": "python -m unittest discover -s /absolute/onnxruntime/onnxruntime/test/python/transformers -p test_openvla_provider_drift.py -v",
     "tests_passed": 13,
